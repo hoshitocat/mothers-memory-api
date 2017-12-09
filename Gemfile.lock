@@ -16,8 +16,10 @@ GEM
     backports (3.10.3)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
+    dotenv (2.2.1)
     i18n (0.9.1)
       concurrent-ruby (~> 1.0)
+    line-bot-api (1.2.2)
     method_source (0.9.0)
     minitest (5.10.3)
     multi_json (1.12.2)
@@ -55,6 +57,8 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  dotenv
+  line-bot-api
   mysql2
   pry
   rake
