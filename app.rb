@@ -37,7 +37,8 @@ post '/tasks' do
   json = request.body.read
   @params = JSON.parse(json).symbolize_keys
   notification_date = @params[:notification_date] ? @params[:notification_date] : '2017-12-10'
-  task = Task.new(title: @params[:title], notification_date: notification_date, user_id: Task::DEFAULT_USER_ID)
+  # TODO: messageは話し言葉に変換したものを入れたい
+  task = Task.new(title: @params[:title], notification_date: notification_date, user_id: Task::DEFAULT_USER_ID, message: @params[:title])
   if task.save
     status 200
     body task.to_json
