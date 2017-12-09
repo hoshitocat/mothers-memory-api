@@ -4,6 +4,7 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'pry'
 Dir["./models/*.rb"].each { |f| require f }
+require "sinatra/activerecord"
 require 'line/bot'
 require 'dotenv/load'
 
@@ -46,7 +47,9 @@ post '/tasks' do
 end
 
 get '/' do
-    'Hello, World!'
+  content_type :json
+  tasks = Task.all
+  tasks.to_json
 end
 
 post '/line/task' do
@@ -63,9 +66,15 @@ post '/line/task' do
     when Line::Bot::Event::Message
       case event.type
       when Line::Bot::Event::MessageType::Text
+        Task.create(
+          title: event.message['text'],
+          notification_date: '2017-12-10',
+          user_id: 1
+        )
         message = {
-          type: 'text',
-          text: event.message['text']
+          type: 'sticker',
+          packageId: 3,
+          stickerId: 184
         }
         line_client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
