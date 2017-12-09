@@ -14,13 +14,18 @@ GEM
       tzinfo (~> 1.1)
     arel (8.0.0)
     backports (3.10.3)
+    coderay (1.1.2)
     concurrent-ruby (1.0.5)
     i18n (0.9.1)
       concurrent-ruby (~> 1.0)
+    method_source (0.9.0)
     minitest (5.10.3)
     multi_json (1.12.2)
     mustermann (1.0.1)
     mysql2 (0.4.10)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
     rack (2.0.3)
     rack-protection (2.0.0)
       rack
@@ -51,6 +56,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   mysql2
+  pry
   rake
   sinatra
   sinatra-activerecord
