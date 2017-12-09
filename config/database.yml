@@ -1,0 +1,7 @@
+development:
+  adapter: mysql2
+  database: development
+  username: root
+  password:
+  host: db
+  port: 3306

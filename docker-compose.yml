@@ -22,6 +22,6 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ${HOME}/data/goblin_db:/var/lib/mysql
+      - ${HOME}/data/mothers-memory-db:/var/lib/mysql
 volumes:
   bundle_cache:
