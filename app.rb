@@ -20,7 +20,7 @@ patch '/tasks/:id' do
     task = Task.find(params[:id])
     json = request.body.read
     @params = JSON.parse(json).symbolize_keys
-    if task.update(title: @params[:title], checked: @params[:checked])
+    if task.update(title: task.title, checked: @params[:checked])
       status 200
       body task.to_json
     else
@@ -36,7 +36,8 @@ end
 post '/tasks' do
   json = request.body.read
   @params = JSON.parse(json).symbolize_keys
-  task = Task.new(title: @params[:title], notification_date: @params[:notification_date], user_id: Task::DEFAULT_USER_ID)
+  notification_date = @params[:notification_date] ? @params[:notification_date] : '2017-12-10'
+  task = Task.new(title: @params[:title], notification_date: notification_date, user_id: Task::DEFAULT_USER_ID)
   if task.save
     status 200
     body task.to_json
