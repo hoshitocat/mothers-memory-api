@@ -20,7 +20,7 @@ patch '/tasks/:id' do
     task = Task.find(params[:id])
     json = request.body.read
     @params = JSON.parse(json).symbolize_keys
-    if task.update(title: task.title, checked: @params[:checked])
+    if task.update(checked: @params[:checked])
       status 200
       body task.to_json
     else
