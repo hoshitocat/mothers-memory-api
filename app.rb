@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'sinatra'
+require 'sinatra/reloader' if development?
+Dir["./models/*.rb"].each { |f| require f }
 
-# bind serve
 set :bind, '0.0.0.0'
 
 get '/' do
-    'Hello, World!'
+  @tasks = Task.tasks
+  { tasks: @tasks }.to_json
 end
