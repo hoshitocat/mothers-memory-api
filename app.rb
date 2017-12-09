@@ -4,6 +4,9 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'pry'
 Dir["./models/*.rb"].each { |f| require f }
+require "sinatra/activerecord"
+require 'line/bot'
+require 'dotenv/load'
 
 set :bind, '0.0.0.0'
 
@@ -41,4 +44,53 @@ post '/tasks' do
     status 422
     body task.errors.full_messages
   end
+end
+
+get '/' do
+  content_type :json
+  tasks = Task.all
+  tasks.to_json
+end
+
+post '/line/task' do
+  body = request.body.read
+
+  signature = request.env['HTTP_X_LINE_SIGNATURE']
+  unless line_client.validate_signature(body, signature)
+    error 400 do 'Bad Request' end
+  end
+
+  events = line_client.parse_events_from(body)
+  events.each { |event|
+    case event
+    when Line::Bot::Event::Message
+      case event.type
+      when Line::Bot::Event::MessageType::Text
+        Task.create(
+          title: event.message['text'],
+          notification_date: '2017-12-10',
+          user_id: 1
+        )
+        message = {
+          type: 'sticker',
+          packageId: 3,
+          stickerId: 184
+        }
+        line_client.reply_message(event['replyToken'], message)
+      when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
+        response = line_client.get_message_content(event.message['id'])
+        tf = Tempfile.open("content")
+        tf.write(response.body)
+      end
+    end
+  }
+
+  "OK"
+end
+
+def line_client
+  @line_client ||= Line::Bot::Client.new { |config|
+    config.channel_secret = ENV.fetch('LINE_CHANNEL_SECRET')
+    config.channel_token = ENV.fetch('LINE_CHANNEL_TOKEN')
+  }
 end
