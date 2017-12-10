@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'pry'
@@ -7,6 +5,7 @@ Dir["./models/*.rb"].each { |f| require f }
 require "sinatra/activerecord"
 require 'line/bot'
 require 'dotenv/load'
+require 'natto'
 
 set :bind, '0.0.0.0'
 
@@ -38,7 +37,7 @@ post '/tasks' do
   @params = JSON.parse(json).symbolize_keys
   notification_date = @params[:notification_date] ? @params[:notification_date] : '2017-12-10'
   # TODO: messageは話し言葉に変換したものを入れたい
-  task = Task.new(title: @params[:title], notification_date: notification_date, user_id: Task::DEFAULT_USER_ID, message: @params[:title])
+  task = Task.new(title: @params[:title], notification_date: notification_date, user_id: Task::DEFAULT_USER_ID, message: (convert_message(@params[:title]) << '?'))
   if task.save
     status 200
     body task.to_json
@@ -103,4 +102,48 @@ def line_client
     config.channel_secret = ENV.fetch('LINE_CHANNEL_SECRET')
     config.channel_token = ENV.fetch('LINE_CHANNEL_TOKEN')
   }
+end
+
+def convert_message(msg)
+  enum = mecab_natto.enum_parse(msg)
+  arr = enum.map {|n| n.feature.split(',') if !n.is_eos? }.compact
+  arr.reverse.each { |v| break if v[1] == '動詞'; arr.pop }
+  generate_string(arr)
+end
+
+def generate_string(arr)
+  arr.each_with_object('') do |a, str|
+    if a[1] == '動詞'
+      str << convert_question_msg(a[2])
+    else
+      str << a[0]
+    end
+  end
+end
+
+def convert_question_msg(str)
+  case
+  when str[-2..-1] == 'する'
+    str.gsub('する', 'した')
+  when str[-1] == 'る'
+    str.gsub('る', 'た')
+  else
+    s = str[0...-1] + (str[-1].ord - 2).chr("UTF-8")
+    case s[-1]
+    when 'い', 'ち', 'り'
+      s.gsub(/い|ち|り/, 'った')
+    when 'に', 'び', 'み'
+      s.gsub(/に|び|み/, 'んだ')
+    when 'し'
+      s.gsub('し', 'した')
+    when 'き'
+      s.gsub('き', 'いた')
+    when 'ぎ'
+      s.gsub('ぎ', 'いだ')
+    end
+  end
+end
+
+def mecab_natto
+  @mn ||= Natto::MeCab.new('-F%m,%f[0],%f[6]')
 end
