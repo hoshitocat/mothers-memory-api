@@ -73,6 +73,12 @@ post '/line/task' do
             text: "わたしが知ってるのはこれよ\n" +
             Task.tasks.pluck(:title).map { |task| "・#{task}" }.join("\n")
           }
+          if Task.tasks.count == 0
+            message = {
+              type: 'text',
+              text: "わたしの知ってるタスクはないわ"
+            }
+          end
         else
           Task.create(
             title: event.message['text'],
