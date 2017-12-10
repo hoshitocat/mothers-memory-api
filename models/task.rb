@@ -8,7 +8,7 @@ class Task < ActiveRecord::Base
   DEFAULT_USER_ID = 1
   class << self
     def tasks
-      where(user_id: DEFAULT_USER_ID)
+      where(user_id: DEFAULT_USER_ID, checked: false)
     end
   end
 end
