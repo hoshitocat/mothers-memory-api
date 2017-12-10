@@ -83,7 +83,8 @@ post '/line/task' do
           Task.create(
             title: event.message['text'],
             notification_date: '2017-12-10',
-            user_id: 1
+            user_id: 1,
+            message: (convert_message(event.message['text']) << '?')
           )
           message = {
             type: 'sticker',
