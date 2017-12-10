@@ -7,7 +7,7 @@ RUN mkdir -p $APP_HOME
 RUN gem update --system
 RUN gem install bundler && gem update bundler
 RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y libmecab-dev mecab mecab-ipadic
+RUN apt-get install -y libmecab-dev mecab mecab-ipadic-utf8
 
 WORKDIR $APP_HOME
 
