@@ -68,16 +68,24 @@ post '/line/task' do
     when Line::Bot::Event::Message
       case event.type
       when Line::Bot::Event::MessageType::Text
-        Task.create(
-          title: event.message['text'],
-          notification_date: '2017-12-10',
-          user_id: 1
-        )
-        message = {
-          type: 'sticker',
-          packageId: 3,
-          stickerId: 184
-        }
+        if event.message['text'] == 'タスク教えて'
+          message = {
+            type: 'text',
+            text: "わたしが知ってるのはこれよ\n" +
+            Task.tasks.pluck(:title).map { |task| "・#{task}" }.join("\n")
+          }
+        else
+          Task.create(
+            title: event.message['text'],
+            notification_date: '2017-12-10',
+            user_id: 1
+          )
+          message = {
+            type: 'sticker',
+            packageId: 3,
+            stickerId: 184
+          }
+        end
         line_client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
         response = line_client.get_message_content(event.message['id'])
